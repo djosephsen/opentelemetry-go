@@ -5,8 +5,8 @@ import (
 	"unsafe"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/open-telemetry/opentelemetry-go/api/core"
 
+	"go.opentelemetry.io/api/core"
 	"go.opentelemetry.io/api/registry"
 )
 
@@ -17,7 +17,7 @@ func TestBool(t *testing.T) {
 		want core.Value
 	}{
 		{
-			name: "value: true",
+			name: "Key.Bool() correctly returns keys's internal bool value",
 			v:    true,
 			want: core.Value{
 				Type: core.BOOL,
@@ -42,7 +42,7 @@ func TestInt64(t *testing.T) {
 		want core.Value
 	}{
 		{
-			name: "value: int64(42)",
+			name: "Key.Int64() correctly returns keys's internal int64 value",
 			v:    int64(42),
 			want: core.Value{
 				Type:  core.INT64,
@@ -67,7 +67,7 @@ func TestUint64(t *testing.T) {
 		want core.Value
 	}{
 		{
-			name: "value: uint64(42)",
+			name: "Key.Uint64() correctly returns keys's internal uint64 value",
 			v:    uint64(42),
 			want: core.Value{
 				Type:   core.UINT64,
@@ -92,7 +92,7 @@ func TestFloat64(t *testing.T) {
 		want core.Value
 	}{
 		{
-			name: "value: float64(42.1)",
+			name: "Key.float64() correctly returns keys's internal floa64 value",
 			v:    float64(42.1),
 			want: core.Value{
 				Type:    core.FLOAT64,
@@ -117,7 +117,7 @@ func TestInt32(t *testing.T) {
 		want core.Value
 	}{
 		{
-			name: "value: int32(42)",
+			name: "Key.int32() correctly returns keys's internal int32 value",
 			v:    int32(42),
 			want: core.Value{
 				Type:  core.INT32,
@@ -142,7 +142,7 @@ func TestUint32(t *testing.T) {
 		want core.Value
 	}{
 		{
-			name: "value: uint32(42)",
+			name: "Key.uint32() correctly returns keys's internal uint32 value",
 			v:    uint32(42),
 			want: core.Value{
 				Type:   core.UINT32,
@@ -167,7 +167,7 @@ func TestFloat32(t *testing.T) {
 		want core.Value
 	}{
 		{
-			name: "value: float32(42.0)",
+			name: "Key.float32() correctly returns keys's internal float32 value",
 			v:    float32(42.0),
 			want: core.Value{
 				Type:    core.FLOAT32,
@@ -192,7 +192,7 @@ func TestString(t *testing.T) {
 		want core.Value
 	}{
 		{
-			name: `value: string("foo")`,
+			name: "Key.String() correctly returns keys's internal string value",
 			v:    "foo",
 			want: core.Value{
 				Type:   core.STRING,
@@ -217,7 +217,7 @@ func TestBytes(t *testing.T) {
 		want core.Value
 	}{
 		{
-			name: `value: []byte{'f','o','o'}`,
+			name: "Key.Bytes() correctly returns keys's internal []byte value",
 			v:    []byte{'f', 'o', 'o'},
 			want: core.Value{
 				Type:  core.BYTES,
@@ -248,7 +248,7 @@ func TestInt(t *testing.T) {
 		want core.Value
 	}{
 		{
-			name: `value: int(42)`,
+			name: "Key.Int() correctly returns keys's internal int64 value",
 			v:    int(42),
 			want: core.Value{
 				Type:  WTYPE,
@@ -279,7 +279,7 @@ func TestUint(t *testing.T) {
 		want core.Value
 	}{
 		{
-			name: `value: uint(42)`,
+			name: "Key.Uint() correctly returns keys's internal uint64 value",
 			v:    uint(42),
 			want: core.Value{
 				Type:   WTYPE,
@@ -304,7 +304,7 @@ func TestDefined(t *testing.T) {
 		want bool
 	}{
 		{
-			name: `Key Defined`,
+			name: "Key.Defined() returns true when len(v.Name) != 0",
 			k: core.Key{
 				registry.Variable{
 					Name: "foo",
@@ -313,7 +313,7 @@ func TestDefined(t *testing.T) {
 			want: true,
 		},
 		{
-			name: `Key not Defined`,
+			name: "Key.Defined() returns false when len(v.Name) == 0",
 			k:    core.Key{registry.Variable{}},
 			want: false,
 		},
@@ -335,7 +335,7 @@ func TestEmit(t *testing.T) {
 		want string
 	}{
 		{
-			name: `bool`,
+			name: `test Key.Emit() can emit a string representing self.BOOL`,
 			v: core.Value{
 				Type: core.BOOL,
 				Bool: true,
@@ -343,7 +343,7 @@ func TestEmit(t *testing.T) {
 			want: "true",
 		},
 		{
-			name: `int32`,
+			name: `test Key.Emit() can emit a string representing self.INT32`,
 			v: core.Value{
 				Type:  core.INT32,
 				Int64: 42,
@@ -351,7 +351,7 @@ func TestEmit(t *testing.T) {
 			want: "42",
 		},
 		{
-			name: `int64`,
+			name: `test Key.Emit() can emit a string representing self.INT64`,
 			v: core.Value{
 				Type:  core.INT64,
 				Int64: 42,
@@ -359,7 +359,7 @@ func TestEmit(t *testing.T) {
 			want: "42",
 		},
 		{
-			name: `uint32`,
+			name: `test Key.Emit() can emit a string representing self.UINT32`,
 			v: core.Value{
 				Type:   core.UINT32,
 				Uint64: 42,
@@ -367,7 +367,7 @@ func TestEmit(t *testing.T) {
 			want: "42",
 		},
 		{
-			name: `uint64`,
+			name: `test Key.Emit() can emit a string representing self.UINT64`,
 			v: core.Value{
 				Type:   core.UINT64,
 				Uint64: 42,
@@ -375,7 +375,7 @@ func TestEmit(t *testing.T) {
 			want: "42",
 		},
 		{
-			name: `float32`,
+			name: `test Key.Emit() can emit a string representing self.FLOAT32`,
 			v: core.Value{
 				Type:    core.FLOAT32,
 				Float64: 42.1,
@@ -383,7 +383,7 @@ func TestEmit(t *testing.T) {
 			want: "42.1",
 		},
 		{
-			name: `float64`,
+			name: `test Key.Emit() can emit a string representing self.FLOAT64`,
 			v: core.Value{
 				Type:    core.FLOAT64,
 				Float64: 42.1,
@@ -391,7 +391,7 @@ func TestEmit(t *testing.T) {
 			want: "42.1",
 		},
 		{
-			name: `string`,
+			name: `test Key.Emit() can emit a string representing self.STRING`,
 			v: core.Value{
 				Type:   core.STRING,
 				String: "foo",
@@ -399,7 +399,7 @@ func TestEmit(t *testing.T) {
 			want: "foo",
 		},
 		{
-			name: `bytes`,
+			name: `test Key.Emit() can emit a string representing self.BYTES`,
 			v: core.Value{
 				Type:  core.BYTES,
 				Bytes: []byte{'f', 'o', 'o'},
