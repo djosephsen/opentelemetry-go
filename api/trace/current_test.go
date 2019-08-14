@@ -12,23 +12,17 @@ import (
 	"go.opentelemetry.io/api/trace"
 )
 
-func TestSetCurrentSpan(t *testing.T) {
-	for _, testcase := range []struct {
-		name string
-		span Span
-	}{
-		{
-			name: "set noop span",
-			span: noopSpan{},
-		},
-	} {
-		t.Run(testcase.name, func(t *testing.T) {
-			//func SetCurrentSpan(ctx context.Context, span Span) context.Context {
-			have := SetCurrentSpan(context.Background(), testcase.span)
-			if have.Value(currentSpanKey) != testcase.span {
-				t.Errorf("Want: %v, but have: %v", testcase.span, have)
-			}
-		})
+func TestSetCurrentSpanOverridesPreviouslySetSpan(t *testing.T) {
+	originalSpan := trace.NoopSpan{}
+	expectedSpan := mockSpan{}
+
+	ctx := context.Background()
+
+	ctx = trace.SetCurrentSpan(ctx, originalSpan)
+	ctx = trace.SetCurrentSpan(ctx, expectedSpan)
+
+	if span := trace.CurrentSpan(ctx); span != expectedSpan {
+		t.Errorf("Want: %v, but have: %v", expectedSpan, span)
 	}
 }
 
