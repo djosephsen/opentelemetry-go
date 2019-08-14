@@ -1,4 +1,4 @@
-package trace
+package trace_test
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"go.opentelemetry.io/api/core"
 	"go.opentelemetry.io/api/event"
 	"go.opentelemetry.io/api/tag"
+	"go.opentelemetry.io/api/trace"
 )
 
 func TestSetCurrentSpan(t *testing.T) {
@@ -35,22 +36,22 @@ func TestCurrentSpan(t *testing.T) {
 	for _, testcase := range []struct {
 		name string
 		ctx  context.Context
-		want Span
+		want trace.Span
 	}{
 		{
-			name: "empty context",
+			name: "CurrentSpan() returns a NoopSpan{} from an empty context",
 			ctx:  context.Background(),
-			want: noopSpan{},
+			want: trace.NoopSpan{},
 		},
 		{
-			name: "context with mockSpan",
-			ctx:  context.WithValue(context.Background(), currentSpanKey, mockSpan{}),
+			name: "CurrentSpan() returns current span if set",
+			ctx:  trace.SetCurrentSpan(context.Background(), mockSpan{}),
 			want: mockSpan{},
 		},
 	} {
 		t.Run(testcase.name, func(t *testing.T) {
-			// proto: CurrentSpan(ctx context.Context) Span
-			have := CurrentSpan(testcase.ctx)
+			// proto: CurrentSpan(ctx context.Context) trace.Span
+			have := trace.CurrentSpan(testcase.ctx)
 			if have != testcase.want {
 				t.Errorf("Want: %v, but have: %v", testcase.want, have)
 			}
@@ -58,14 +59,14 @@ func TestCurrentSpan(t *testing.T) {
 	}
 }
 
-// a duplicate of noopSpan for testing
+// a duplicate of trace.NoopSpan for testing
 type mockSpan struct{}
 
-var _ Span = mockSpan{}
+var _ trace.Span = mockSpan{}
 
 // SpanContext returns an invalid span context.
 func (mockSpan) SpanContext() core.SpanContext {
-	return core.INVALID_SPAN_CONTEXT
+	return core.EmptySpanContext()
 }
 
 // IsRecordingEvents always returns false for mockSpan.
@@ -102,8 +103,8 @@ func (mockSpan) Finish() {
 }
 
 // Tracer returns noop implementation of Tracer.
-func (mockSpan) Tracer() Tracer {
-	return noopTracer{}
+func (mockSpan) Tracer() trace.Tracer {
+	return trace.NoopTracer{}
 }
 
 // AddEvent does nothing.
