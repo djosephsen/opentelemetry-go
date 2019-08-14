@@ -17,7 +17,7 @@ package core_test
 import (
 	"testing"
 
-	"github.com/open-telemetry/opentelemetry-go/api/core"
+	"go.opentelemetry.io/api/core"
 )
 
 func TestIsValid(t *testing.T) {
@@ -28,19 +28,24 @@ func TestIsValid(t *testing.T) {
 		want bool
 	}{
 		{
-			name: "bothTrue",
+			name: "SpanContext.IsValid() returns true if sc has both an Trace ID and Span ID",
 			tid:  core.TraceID{High: uint64(42)},
 			sid:  uint64(42),
 			want: true,
 		}, {
-			name: "bothFalse",
+			name: "SpanContext.IsValid() returns false if sc has neither an Trace ID nor Span ID",
 			tid:  core.TraceID{High: uint64(0)},
 			sid:  uint64(0),
 			want: false,
 		}, {
-			name: "oneTrue",
+			name: "SpanContext.IsValid() returns false if sc has a Span ID but not a Trace ID",
 			tid:  core.TraceID{High: uint64(0)},
 			sid:  uint64(42),
+			want: false,
+		}, {
+			name: "SpanContext.IsValid() returns false if sc has a Trace ID but not a Span ID",
+			tid:  core.TraceID{High: uint64(42)},
+			sid:  uint64(0),
 			want: false,
 		},
 	} {
@@ -64,19 +69,19 @@ func TestHasTraceID(t *testing.T) {
 		want bool
 	}{
 		{
-			name: "both",
+			name: "SpanContext.HasTraceID() returns true if both Low and High are nonzero",
 			tid:  core.TraceID{High: uint64(42), Low: uint64(42)},
 			want: true,
 		}, {
-			name: "neither",
+			name: "SpanContext.HasTraceID() returns false if neither Low nor High are nonzero",
 			tid:  core.TraceID{},
 			want: false,
 		}, {
-			name: "high",
+			name: "SpanContext.HasTraceID() returns true if High != 0",
 			tid:  core.TraceID{High: uint64(42)},
 			want: true,
 		}, {
-			name: "low",
+			name: "SpanContext.HasTraceID() returns true if Low != 0",
 			tid:  core.TraceID{Low: uint64(42)},
 			want: true,
 		},
@@ -99,11 +104,11 @@ func TestHasSpanID(t *testing.T) {
 		want bool
 	}{
 		{
-			name: "has",
+			name: "SpanContext.HasSpanID() returns true if self.SpanID != 0",
 			sc:   core.SpanContext{SpanID: uint64(42)},
 			want: true,
 		}, {
-			name: "hasnt",
+			name: "SpanContext.HasSpanID() returns false if self.SpanID == 0",
 			sc:   core.SpanContext{},
 			want: false,
 		},
@@ -125,11 +130,11 @@ func TestSpanIDString(t *testing.T) {
 		want string
 	}{
 		{
-			name: "fourtytwo",
+			name: "SpanContext.SpanIDString returns string representation of self.TraceID values > 0",
 			sc:   core.SpanContext{SpanID: uint64(42)},
 			want: `000000000000002a`,
 		}, {
-			name: "empty",
+			name: "SpanContext.SpanIDString returns string representation of self.TraceID values == 0",
 			sc:   core.SpanContext{},
 			want: `0000000000000000`,
 		},
@@ -151,7 +156,7 @@ func TestTraceIDString(t *testing.T) {
 		want string
 	}{
 		{
-			name: "fourtytwo",
+			name: "SpanContext.TraceIDString returns string representation of self.TraceID values > 0",
 			sc: core.SpanContext{
 				TraceID: core.TraceID{
 					High: uint64(42),
@@ -160,7 +165,7 @@ func TestTraceIDString(t *testing.T) {
 			},
 			want: `000000000000002a000000000000002a`,
 		}, {
-			name: "empty",
+			name: "SpanContext.TraceIDString returns string representation of self.TraceID values == 0",
 			sc:   core.SpanContext{TraceID: core.TraceID{}},
 			want: `00000000000000000000000000000000`,
 		},
@@ -198,7 +203,7 @@ func TestSpanContextIsSampled(t *testing.T) {
 					High: uint64(42),
 					Low:  uint64(42),
 				},
-				TraceOptions: core.TraceOptionSampled | traceOptionBitMaskUnused,
+				TraceOptions: core.TraceOptionSampled | core.TraceOptionUnused,
 			},
 			want: true,
 		}, {
