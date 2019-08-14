@@ -12,38 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package core
+package core_test
 
 import (
 	"testing"
+
+	"github.com/open-telemetry/opentelemetry-go/api/core"
 )
 
 func TestIsValid(t *testing.T) {
 	for _, testcase := range []struct {
 		name string
-		tid  TraceID
+		tid  core.TraceID
 		sid  uint64
 		want bool
 	}{
 		{
 			name: "bothTrue",
-			tid:  TraceID{High: uint64(42)},
+			tid:  core.TraceID{High: uint64(42)},
 			sid:  uint64(42),
 			want: true,
 		}, {
 			name: "bothFalse",
-			tid:  TraceID{High: uint64(0)},
+			tid:  core.TraceID{High: uint64(0)},
 			sid:  uint64(0),
 			want: false,
 		}, {
 			name: "oneTrue",
-			tid:  TraceID{High: uint64(0)},
+			tid:  core.TraceID{High: uint64(0)},
 			sid:  uint64(42),
 			want: false,
 		},
 	} {
 		t.Run(testcase.name, func(t *testing.T) {
-			sc := SpanContext{
+			sc := core.SpanContext{
 				TraceID: testcase.tid,
 				SpanID:  testcase.sid,
 			}
@@ -58,30 +60,30 @@ func TestIsValid(t *testing.T) {
 func TestHasTraceID(t *testing.T) {
 	for _, testcase := range []struct {
 		name string
-		tid  TraceID
+		tid  core.TraceID
 		want bool
 	}{
 		{
 			name: "both",
-			tid:  TraceID{High: uint64(42), Low: uint64(42)},
+			tid:  core.TraceID{High: uint64(42), Low: uint64(42)},
 			want: true,
 		}, {
 			name: "neither",
-			tid:  TraceID{},
+			tid:  core.TraceID{},
 			want: false,
 		}, {
 			name: "high",
-			tid:  TraceID{High: uint64(42)},
+			tid:  core.TraceID{High: uint64(42)},
 			want: true,
 		}, {
 			name: "low",
-			tid:  TraceID{Low: uint64(42)},
+			tid:  core.TraceID{Low: uint64(42)},
 			want: true,
 		},
 	} {
 		t.Run(testcase.name, func(t *testing.T) {
 			//proto: func (sc SpanContext) HasTraceID() bool{}
-			sc := SpanContext{TraceID: testcase.tid}
+			sc := core.SpanContext{TraceID: testcase.tid}
 			have := sc.HasTraceID()
 			if have != testcase.want {
 				t.Errorf("Want: %v, but have: %v", testcase.want, have)
@@ -93,16 +95,16 @@ func TestHasTraceID(t *testing.T) {
 func TestHasSpanID(t *testing.T) {
 	for _, testcase := range []struct {
 		name string
-		sc   SpanContext
+		sc   core.SpanContext
 		want bool
 	}{
 		{
 			name: "has",
-			sc:   SpanContext{SpanID: uint64(42)},
+			sc:   core.SpanContext{SpanID: uint64(42)},
 			want: true,
 		}, {
 			name: "hasnt",
-			sc:   SpanContext{},
+			sc:   core.SpanContext{},
 			want: false,
 		},
 	} {
@@ -119,16 +121,16 @@ func TestHasSpanID(t *testing.T) {
 func TestSpanIDString(t *testing.T) {
 	for _, testcase := range []struct {
 		name string
-		sc   SpanContext
+		sc   core.SpanContext
 		want string
 	}{
 		{
 			name: "fourtytwo",
-			sc:   SpanContext{SpanID: uint64(42)},
+			sc:   core.SpanContext{SpanID: uint64(42)},
 			want: `000000000000002a`,
 		}, {
 			name: "empty",
-			sc:   SpanContext{},
+			sc:   core.SpanContext{},
 			want: `0000000000000000`,
 		},
 	} {
@@ -145,13 +147,13 @@ func TestSpanIDString(t *testing.T) {
 func TestTraceIDString(t *testing.T) {
 	for _, testcase := range []struct {
 		name string
-		sc   SpanContext
+		sc   core.SpanContext
 		want string
 	}{
 		{
 			name: "fourtytwo",
-			sc: SpanContext{
-				TraceID: TraceID{
+			sc: core.SpanContext{
+				TraceID: core.TraceID{
 					High: uint64(42),
 					Low:  uint64(42),
 				},
@@ -159,7 +161,7 @@ func TestTraceIDString(t *testing.T) {
 			want: `000000000000002a000000000000002a`,
 		}, {
 			name: "empty",
-			sc:   SpanContext{TraceID: TraceID{}},
+			sc:   core.SpanContext{TraceID: core.TraceID{}},
 			want: `00000000000000000000000000000000`,
 		},
 	} {
@@ -176,32 +178,32 @@ func TestTraceIDString(t *testing.T) {
 func TestSpanContextIsSampled(t *testing.T) {
 	for _, testcase := range []struct {
 		name string
-		sc   SpanContext
+		sc   core.SpanContext
 		want bool
 	}{
 		{
 			name: "sampled",
-			sc: SpanContext{
-				TraceID: TraceID{
+			sc: core.SpanContext{
+				TraceID: core.TraceID{
 					High: uint64(42),
 					Low:  uint64(42),
 				},
-				TraceOptions: TraceOptionSampled,
+				TraceOptions: core.TraceOptionSampled,
 			},
 			want: true,
 		}, {
 			name: "sampled plus unused",
-			sc: SpanContext{
-				TraceID: TraceID{
+			sc: core.SpanContext{
+				TraceID: core.TraceID{
 					High: uint64(42),
 					Low:  uint64(42),
 				},
-				TraceOptions: TraceOptionSampled | traceOptionBitMaskUnused,
+				TraceOptions: core.TraceOptionSampled | traceOptionBitMaskUnused,
 			},
 			want: true,
 		}, {
 			name: "not sampled/default",
-			sc:   SpanContext{TraceID: TraceID{}},
+			sc:   core.SpanContext{TraceID: core.TraceID{}},
 			want: false,
 		},
 	} {
